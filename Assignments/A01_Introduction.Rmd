@@ -22,7 +22,7 @@ The completed exercise is due on Tuesday, January 14th at 1:00 pm.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: I have learned R in a mandantary class, ENV 710 Applied Data Analysis in Environmental Science, for statisitic analysis. Besides this, I did not use R nor Git in any other environment.
+> Answer: I have learned R in a mandantory class, ENV 710 Applied Data Analysis in Environmental Science, to conduct statisitic analysis. Besides this, I did not use R nor Git in any other classes or trainings.
 
 2. Are there any components of the course about which you feel confident?
 
@@ -30,7 +30,7 @@ The completed exercise is due on Tuesday, January 14th at 1:00 pm.
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: I am weak in stats, so I am worried that I would fall behind about statistical analysis in class.
+> Answer: I am weak in math and statistics, so I am concern if I would fall behind about statistical analysis through the semester.
 
 
 ## 2) GitHub
