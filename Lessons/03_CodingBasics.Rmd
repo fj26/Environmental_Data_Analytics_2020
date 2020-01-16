@@ -115,7 +115,8 @@ Use the common functions `summary` and `sd` to obtain basic data summaries of th
 
 ```{r}
 summary(dataframetemp)
-sd()
+sd(dataframetemp$`High (F)`)
+sd(dataframetemp$`High (C)`)
 ```
 
 
