@@ -1,6 +1,6 @@
 ---
 title: "Assignment 2: Coding Basics"
-author: "Student Name"
+author: Vicky Jia
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -32,12 +32,15 @@ The completed exercise is due on Tuesday, January 21 at 1:00 pm.
 4. Insert comments in your code to describe what you are doing.
 
 ```{r}
-#1. 
-
-#2. 
-
-#3. 
-
+#1. Define "seq1" as a sequence of number from 1 to 100 increasing by 4
+seq1 <- seq(1, 100, 4)
+seq1
+#2. Calculate the mean and median of "seq1"
+mean(seq1)
+median(seq1)
+#3. Directly compare mean and median of "seq1" in R. 
+#If mean is not greater than median, R will return "FALSE"
+mean(seq1) > median(seq1)
 ```
 
 ## Basics Day 2
@@ -51,21 +54,42 @@ The completed exercise is due on Tuesday, January 21 at 1:00 pm.
 8. Label the columns of your data frame with informative titles.
 
 ```{r}
+name <- c("Ann", "Bill", "Cindy", "Dan")  #Character vector
+score <- c(79, 43, 29, 61)  #Numeric vector
+test <- c(TRUE, FALSE, FALSE, TRUE)  #Logical vector
 
+test_result <- data.frame(name,score,test)
+names(test_result) <- c("Name", "Score", "Pass")
 ```
 
 9. QUESTION: How is this data frame different from a matrix?
 
-> Answer: 
+> Answer:  This data frame can store different types of data. Columns will maintain the original types of the vector. For example, if input vectors are logical vectors, the vector type in the data frame will still be logical. The Environmental tab indicates the vector type of each column in the data frame, which can be checked seperately. Also, in a data frame, each column requires a column name. 
+However, in a matrix, all elements are the same type of data, and the column name is not required.
 
 10. Create a function with an if/else statement. Your function should determine whether a test score is a passing grade of 50 or above (TRUE or FALSE). You will need to choose either the `if` and `else` statements or the `ifelse` statement. Hint: Use `print`, not `return`. The name of your function should be informative.
 
 11. Apply your function to the vector with test scores that you created in number 5. 
 
 ```{r}
+#pass_score <- function(x) {
+#  if(x>= 50) {
+#    TRUE
+#  }
+#  else {
+#    FALSE
+#  }
+#}
+
+pass_score <- function(x) {
+  ifelse(x<50, FALSE, TRUE)
+  }
+
+check_test <- pass_score(score)
+check_test
 
 ```
 
 12. QUESTION: Which option of `if` and `else` vs. `ifelse` worked? Why?
 
-> Answer: 
+> Answer: 'ifelse' worked. The list of score has several elements. The 'if' and 'else' statement can only read the first element in the list because the 'if' statement is not vectorized. The 'ifelse' statement operates on the whole logical vector, so it can go through each element.
