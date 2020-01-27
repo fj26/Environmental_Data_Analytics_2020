@@ -2,8 +2,8 @@
 title: 'Assignment 3: Data Exploration'
 author: "Vicky Jia"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 geometry: margin=2.54cm
 ---
 
@@ -127,7 +127,7 @@ unique(Litter$plotID)
 summary(Litter$plotID)
 ```
 
-> Answer: 12 plots were sampled at Niwot Ridge. 'unique' only returns plot ID and returns the number of return variables indicated by the [] value in front of each line; 'summary' also returns plot ID, and it can tell the number of sites for each plot, but cannot indicate the total number of returned variables.
+> Answer: 12 plots were sampled at Niwot Ridge. 'unique' only returns plot ID and returns the number of return variables indicated by the '[]' value in front of each line; 'summary' also returns plot ID, and it can tell the number of sites for each plot, but cannot indicate the total number of returned variables.
 
 14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
 ```{r, fig.height = 3, fig.width = 4}
