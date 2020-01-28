@@ -2,8 +2,8 @@
 title: 'Assignment 3: Data Exploration'
 author: "Vicky Jia"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 geometry: margin=2.54cm
 ---
 
