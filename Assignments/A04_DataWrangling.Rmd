@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4: Data Wrangling"
-author: "Student Name"
+author: Vicky Jia
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -25,8 +25,29 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 
 ```{r, message = FALSE}
 #1
-
+getwd()
+library(tidyverse)
+library(lubridate)
+O3.2018 <- read.csv('../Data/Raw/EPAair_O3_NC2018_raw.csv')
+O3.2019 <- read.csv('../Data/Raw/EPAair_O3_NC2019_raw.csv')
+PM25.2018 <- read.csv('../Data/Raw/EPAair_PM25_NC2018_raw.csv')
+PM25.2019 <- read.csv('../Data/Raw/EPAair_PM25_NC2019_raw.csv')
 #2
+dim(O3.2018)
+colnames(O3.2018)
+str(O3.2018)
+
+dim(O3.2019)
+colnames(O3.2019)
+str(O3.2019)
+
+dim(PM25.2018)
+colnames(PM25.2018)
+str(PM25.2018)
+
+dim(PM25.2019)
+colnames(PM25.2019)
+str(PM25.2019)
 ```
 
 ## Wrangle individual datasets to create processed files.
@@ -37,13 +58,26 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 
 ```{r}
 #3
+O3.2018$Date <- as.Date(O3.2018$Date, format = "%m/%d/%Y")
+O3.2019$Date <- as.Date(O3.2019$Date, format = "%m/%d/%Y")
+PM25.2018$Date <- as.Date(PM25.2018$Date, format = "%m/%d/%Y")
+PM25.2019$Date <- as.Date(PM25.2019$Date, format = "%m/%d/%Y")
 
 #4
+O3.2018 <- select(O3.2018, Date, DAILY_AQI_VALUE,Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+O3.2019 <- select(O3.2019, Date, DAILY_AQI_VALUE,Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+PM25.2018 <- select(PM25.2018, Date, DAILY_AQI_VALUE,Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+PM25.2019 <- select(PM25.2019, Date, DAILY_AQI_VALUE,Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
 #5
+PM25.2018 <- mutate(PM25.2018, AQS_PARAMETER_DESC = 'PM2.5' )
+PM25.2019 <- mutate(PM25.2019, AQS_PARAMETER_DESC = 'PM2.5' )
 
 #6
-
+write.csv(O3.2018, row.names = FALSE, file = '../Data/Processed/EPAair_O3_NC2018_processed.csv')
+write.csv(O3.2019, row.names = FALSE, file = '../Data/Processed/EPAair_O3_NC2019_processed.csv')
+write.csv(PM25.2018, row.names = FALSE, file = '../Data/Processed/EPAair_PM25_NC2018_processed.csv')
+write.csv(PM25.2019, row.names = FALSE, file = '../Data/Processed/EPAair_PM25_NC2019_processed.csv')
 ```
 
 
@@ -62,15 +96,25 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 
 ```{r}
 #7
+EPAair <- rbind(O3.2018, O3.2019, PM25.2018, PM25.2019)
 
 #8
+#detach("package:plyr", unload=TRUE)
+EPAair.select <- 
+  EPAair %>%
+  filter(Site.Name == "Linville Falls" | Site.Name == "Durham Armory" | Site.Name == "Leggett" | Site.Name == "Hattie Avenue" | Site.Name == "Clemmons Middle" | Site.Name == "Mendenhall School" | Site.Name == "Frying Pan Mountain" | Site.Name == "West Johnston Co." | Site.Name == "Garinger High School" |Site.Name == "Castle Hayne" | Site.Name == "Pitt Agri. Center" | Site.Name =="Bryson City" |Site.Name == "Millbrook School") %>%
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>%
+  filter(!is.na(DAILY_AQI_VALUE) & !is.na(SITE_LATITUDE) & !is.na(SITE_LONGITUDE)) %>%
+  summarise(meanAQI = mean(DAILY_AQI_VALUE), meanLAT = mean(SITE_LATITUDE), meanLONG = mean(SITE_LONGITUDE)) %>%
+  mutate(Month = month(Date), Year = year(Date))
 
+dim(EPAair.select)
 #9
-
+EPAair.select.unique <- spread(EPAair.select, AQS_PARAMETER_DESC, meanAQI)
 #10
-
+dim(EPAair.select.unique)
 #11
-
+write.csv(EPAair.select.unique, row.names = FALSE, file = '../Data/Processed/EPAair_O3_PM25_NC1718_Processed.csv')
 ```
 
 
@@ -81,13 +125,21 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 
 ```{r}
 #12a
+EPAair.select.unique.AQI <-
+  EPAair.select.unique %>%
+  group_by(Site.Name, Month, Year) %>%
+  filter(!is.na(Ozone) & !is.na(PM2.5)) %>%
+  summarise(meanOzone = mean(Ozone), meanPM25 = mean(PM2.5))
 
 #12b
-
+EPAair.summary <-
+  EPAair.select.unique.AQI %>%
+  drop_na(Month) %>%
+  drop_na(Year)
 #13
-
+dim(EPAair.summary)
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: If na.omit removes cases, the row numbers of the cases form the "na.action" attribute of the result, of class "omit". Also, 'na.omit' cannot select specific variables - it will omit all N/A values. drop.na will drop rows containing missing values based on our selection.
