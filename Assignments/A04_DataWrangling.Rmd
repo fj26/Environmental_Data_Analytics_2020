@@ -128,7 +128,6 @@ write.csv(EPAair.select.unique, row.names = FALSE, file = '../Data/Processed/EPA
 EPAair.select.unique.AQI <-
   EPAair.select.unique %>%
   group_by(Site.Name, Month, Year) %>%
-  filter(!is.na(Ozone) & !is.na(PM2.5)) %>%
   summarise(meanOzone = mean(Ozone), meanPM25 = mean(PM2.5))
 
 #12b
