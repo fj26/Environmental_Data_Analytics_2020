@@ -74,7 +74,7 @@ Here are some commonly used aesthetic types that can be manipulated in ggplot:
 
 ### Plotting continuous variables over time: Scatterplot and Line Plot
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
-# Scatterplot
+# Scatterplot - geom_point is the function to tell R to plot scatterplot
 ggplot(EPAair, aes(x = Date, y = Ozone)) + 
   geom_point()
 
@@ -82,12 +82,12 @@ O3plot <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone))
 print(O3plot)
 
-# Fix this code
+# Fix this code - if color is specified, add it after aes
 O3plot2 <- ggplot(EPAair) +
-  geom_point(aes(x = Date, y = Ozone, color = "blue"))
+  geom_point(aes(x = Date, y = Ozone), color = "blue")
 print(O3plot2)
 
-# Add additional variables
+# Add additional variables - as.factor is because year can be continuous variable -- we want to use factor as a categorical variable -- if color is based on certain variables, add it within aes.
 PMplot <- 
   ggplot(EPAair, aes(x = Month, y = PM2.5, shape = as.factor(Year), color = Site.Name)) +
   geom_point()
@@ -97,7 +97,7 @@ print(PMplot)
 PMplot.faceted <-
   ggplot(EPAair, aes(x = Month, y = PM2.5, shape = as.factor(Year))) +
   geom_point() +
-  facet_wrap(vars(Site.Name), nrow = 3)
+  facet_wrap(vars(Site.Name), nrow = 3) ## just tell how many rows in total and the category will be based on which variable 
 print(PMplot.faceted)
 
 # Filter dataset within plot building and facet by multiple variables
@@ -106,14 +106,15 @@ PMplot.faceted2 <-
                   Site.Name == "Bryson City"), 
          aes(x = Month, y = PM2.5)) + 
   geom_point() +
-  facet_grid(Site.Name ~ Year) 
+  facet_grid(Site.Name ~ Year) ##y-axis is site and x-axis is year 
 print(PMplot.faceted2)
 
 # Plot true time series with geom_line
 PMplot.line <- 
   ggplot(subset(EPAair, Site.Name == "Leggett"), 
          aes(x = Date, y = PM2.5)) +
-  geom_line()
+  geom_line()+
+  geom_point()
 print(PMplot.line)
 
 # Exercise: build your own scatterplots of PeterPaul.chem.nutrients
@@ -121,13 +122,18 @@ print(PMplot.line)
 # 1. 
 # Plot surface temperatures by day of  year. 
 # Color your points by year, and facet by lake in two rows.
-
+PeterPaul.chem.nutrients.temp <- ggplot(subset(PeterPaul.chem.nutrients, depth == 0))+
+  geom_point (aes(x = daynum, y = temperature_C,color = year4)) +
+  facet_wrap(vars(lakename), nrow = 2)
+print(PeterPaul.chem.nutrients.temp)
 
 #2. 
 # Plot temperature by date. Color your points by depth.
-# Change the size of your point to 0.5
+# Change the size of your point to 0.5 -- not a true time series because multiple lakes/locations involved, not just one location at one time spot
+PeterPaul.chem.nutrients.tempdate <- ggplot(PeterPaul.chem.nutrients, aes(x = sampledate, y = temperature_C, color = depth), size = 0.5) +
+  geom_point()
 
-
+print(PeterPaul.chem.nutrients.tempdate)
 ```
 ### Plotting the relationship between two continuous variables: Scatterplot
 
@@ -138,7 +144,7 @@ lightvsDO <-
   geom_point()
 print(lightvsDO)
 
-# Adjust axes
+# Adjust axes - to filter out outliers -- low oxygen at low irradiance is at bottom of ocean no sunlight -- no photosynthesis and more respiration -- so consume oxygen
 lightvsDOfixed <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = irradianceWater, y = dissolvedOxygen)) +
   geom_point() +
@@ -148,8 +154,8 @@ print(lightvsDOfixed)
 
 # Depth in the fields of limnology and oceanography is on a reverse scale
 tempvsdepth <- 
-  ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth)) +
-  #ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth, color = daynum)) +
+  #ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth)) +
+  ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth, color = daynum)) +
   geom_point() +
   scale_y_reverse()
 print(tempvsdepth)
@@ -157,7 +163,7 @@ print(tempvsdepth)
 NvsP <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth)) +
   geom_point() +
-  geom_smooth(method = lm) +
+  geom_smooth(method = lm) + ##grey part - confidence interval of model, not data, to remove this grey part: method = lm, se = FALSE
   geom_abline(aes(slope = 16, intercept = 0))
 print(NvsP)
 
@@ -180,7 +186,7 @@ What might be more effective ways to display the information? Navigate to the bo
 # Box and whiskers plot
 Nutrientplot3 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(x = lakename, y = concentration)) +
-  geom_boxplot(aes(color = nutrient)) # Why didn't we use "fill"?
+  geom_boxplot(aes(color = nutrient)) # Why didn't we use "fill"? - a lot near 0 so cannot clearly see which type of nutrient is if use fill ( -- will be black)
 print(Nutrientplot3)
 
 # Dot plot
@@ -219,7 +225,7 @@ print(Nutrientplot7)
 # Ridgeline plot
 Nutrientplot6 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(y = nutrient, x = concentration)) +
-  geom_density_ridges(aes(fill = lakename), alpha = 0.5) #
+  geom_density_ridges(aes(fill = lakename), alpha = 0.5) #alpha is transparency level
 print(Nutrientplot6)
 
 # Exercise: Plot distributions of AQI values for EPAair
