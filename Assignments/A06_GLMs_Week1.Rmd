@@ -33,7 +33,7 @@ getwd()
 library(tidyverse)
 library(cowplot)
 library(agricolae)
-PPnutrient <- read.csv('./Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv')
+PPnutrient <- read.csv('../Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv')
 #2
 PPnutrient$sampledate <- as.Date(PPnutrient$sampledate, format = '%Y-%m-%d')
 class(PPnutrient$sampledate)
@@ -56,7 +56,7 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 4. Which application of the GLM will you use (t-test, one-way ANOVA, two-way ANOVA with main effects, or two-way ANOVA with interaction effects)? Justify your choice.
 
 > Answer: Using two-way Anova with interaction effects.
-This is because we have two independent variables (or called as categorical explanatory variables) - differnet lakes and seasonality and examine their impacts on the nutrient level, which is a continous variable. Using interaction effects, we can tell if nutrient level is significantly different from each other at each lake and in each season, as well as if lakes and seasons will interactively affect each other since there might be a dependence between these two variables, such as the impacts of the seasonality on the depth of the lake which might further affect nutrient level.
+This is because we have two independent variables (or called as categorical explanatory variables) - differnet lakes and seasons and examine their impacts on the nutrient level, which is a continous variable. Using interaction effects, we can tell if nutrient level is significantly different from each other at each lake and in each season respectively, as well as if lakes and seasons will interactively affect each other since there might be a dependence between these two variables, such as the impacts of the seasonality on the depth of the lake which might further affect the nutrient level.
 
 
 5. Run your test for TN. Include examination of groupings and consider interaction effects, if relevant.
@@ -64,16 +64,21 @@ This is because we have two independent variables (or called as categorical expl
 6. Run your test for TP. Include examination of groupings and consider interaction effects, if relevant.
 
 ```{r}
-#5
+#5 the interaction between Lake and months for TN is not significant, so only consider Lake as the main effect here.
 tn.anova <- aov(data = PPnutrient_surface, tn_ug ~ lakename * month)
 summary(tn.anova)
-tn.group <-  HSD.test(tn.anova, "month", group = TRUE)
-tn.group
 
-#6
+
+#6 the interaction between Lake and months for TN is significant, so run the examination of grouping and consider interaction effect between these two variables here.
 tp.anova <- aov(data = PPnutrient_surface, tp_ug ~ lakename * month)
 summary(tp.anova)
-tp.group <-  HSD.test(tp.anova, "month", group = TRUE)
+
+TukeyHSD(tp.anova)
+
+tp.interaction <- with(PPnutrient_surface, interaction(lakename, month))
+tp.anova.int <- aov(data = PPnutrient_surface, tp_ug ~ tp.interaction)
+
+tp.group <-  HSD.test(tp.anova.int, "tp.interaction", group = TRUE)
 tp.group
 
 ```
@@ -84,31 +89,26 @@ tp.group
 
 ```{r}
 #7
+mytheme <- theme_classic(base_size = 14) + theme(axis.text = element_text(color = "black"))
+theme_set(mytheme)
+
 tn.plot <- ggplot(PPnutrient_surface, aes(x=as.factor(month), y = tn_ug, color = lakename))+
   geom_boxplot()+
-  stat_summary(geom = "text", fun.y = max, vjust = -1, size = 4, 
-               label = c("a", "a", "a", "a","a","a", "a", "a", "a","a" ),
-               position = position_dodge(width = 0.75))+
-  labs(x = "", y = expression(paste("TN (", mu, "g/L)")), color = 'Lake Name') +
+  labs(x = "Month", y = expression(paste("TN (", mu, "g/L)")), color = 'Lake Name') +
   scale_color_viridis_d(option = "plasma", begin = 0.3, end = 0.8)
 print(tn.plot)
 
 tp.plot <- ggplot(PPnutrient_surface, aes(x=as.factor(month), y = tp_ug, color = lakename))+
   geom_boxplot()+
   stat_summary(geom = "text", fun.y = max, vjust = -1, size = 4, 
-               label = c("a", "a", "a", "a","a","a", "a", "a", "a","a"),
+               label = c("cd", "bcd", "d", "ab","d","a", "d", "abc", "cd","abcd"),
               position = position_dodge(width = 0.75))+
   labs(x = "Month", y = expression(paste("TN (", mu, "g/L)")), color = 'Lake Name') +
   scale_color_viridis_d(option = "plasma", begin = 0.3, end = 0.8)
 print(tp.plot)
 
 #8
-plot_grid(tn.plot + theme(legend.position = "none"),
-          tp.plot + theme(legend.position = "bottom"), 
+plot_grid(tn.plot + theme(legend.position = "top")+ xlab(''),
+          tp.plot + theme(legend.position = "none"), 
           nrow = 2, align = 'v')
-
 ```
-
-
-
-
