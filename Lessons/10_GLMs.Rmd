@@ -63,20 +63,24 @@ Are Ozone levels below the threshold for "good" AQI index (0-50)?
 ```{r}
 
 summary(EPAair$Ozone)
-EPAair.subsample <- sample_n(EPAair, 5000)
+EPAair.subsample <- sample_n(EPAair, 5000) ##take 5000 variables in a new sample
 
 # Evaluate assumption of normal distribution
-shapiro.test((EPAair.subsample$Ozone))
+shapiro.test((EPAair.subsample$Ozone)) ##non-hypthesis: nomally distributed -- p value is small -- data is not a well normall distribution
 ggplot(EPAair, aes(x = Ozone)) +
-  geom_histogram() 
+  geom_histogram()  ## right skewed
 qqnorm(EPAair$Ozone); qqline(EPAair$Ozone)
 
 O3.onesample <- t.test(EPAair$Ozone, mu = 50, alternative = "less")
 O3.onesample
+#one side t-test -- compare to a single value "mu"
+##alternative hypothesis: mean is less than 50
+##t < -1.96 or t > 1.96 ----> p < 0.05 --> reject non hypothesis
+##within 95% intervel, the sample mean is 40.87526
 
 Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
-  #geom_density(stat = "count", fill = "gray") +
-  geom_density(fill = "gray") +
+  geom_density(stat = "count", fill = "gray") +
+  #geom_density(fill = "gray") +
   geom_vline(xintercept = 50, color = "#238b45", lty = 2, size = 0.9) +
   scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
 print(Ozone.plot)
@@ -84,7 +88,7 @@ print(Ozone.plot)
 
 Write a sentence or two about the results of this test. Include both the results of the test and an interpretation that puts the findings in context of the resarch question.
 
-> 
+> EPA ozone measurements for 2018-2019 were significantly lower than 50, the AQI threshold for "good" air quality (one sample t-test; t = -57.98, p < 0.0001)
 
 ### Two-sample t-test
 The two-sample *t* test is used to test the hypothesis that the mean of two samples is equivalent. Unlike the one-sample tests, a two-sample test requires a second assumption that the variance of the two groups is equivalent. Are Ozone levels different between 2018 and 2019?
@@ -92,14 +96,14 @@ The two-sample *t* test is used to test the hypothesis that the mean of two samp
 ```{r}
 shapiro.test(EPAair$Ozone[EPAair$Year == 2018])
 shapiro.test(EPAair$Ozone[EPAair$Year == 2019])
-var.test(EPAair$Ozone ~ EPAair$Year)
+var.test(EPAair$Ozone ~ EPAair$Year) ## variance > 1 -- signficantly different from each other
 
 ggplot(EPAair, aes(x = Ozone, color = as.factor(Year))) +
-  geom_freqpoly()
+  geom_freqpoly() ## as.factor(Year) makes year as a continuous variable not a discrete variable
 
 # Format as a t-test
 O3.twosample <- t.test(EPAair$Ozone ~ EPAair$Year)
-O3.twosample
+O3.twosample ##test ozone by year -- alternative hypothesis: if the means are different -- p< 0.05 and t<-1,96 -- reject non-hypothesis
 O3.twosample$p.value
 
 # Format as a GLM
@@ -107,6 +111,7 @@ O3.twosample2 <- lm(EPAair$Ozone ~ EPAair$Year)
 summary(O3.twosample2)
 
 plot(O3.twosample2)
+par(mfrow = c(2,2)) ##display 4 plots in one picture
 ```
 
 ### Non-parametric equivalent of t-test: Wilcoxon test
@@ -129,13 +134,35 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 3. geom_violin of ozone divided by year, with the 0.5 quantile marked as a horizontal line. Add letters representing a significant difference between 2018 and 2019. 
 
 ```{r}
+Ozone.density <- ggplot(EPAair, aes(x = Ozone, fill = as.factor(Year))) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("darkgreen", "darkblue")) +
+  labs(x = "Ozone AQI value", y = "Density", fill = "")
+  
+  #ggplot(EPAair) +
+  #geom_density(aes(x= Ozone, fill = as.factor(EPAair$Year)),alpha = 0.5)
+print(Ozone.density)
 
+Ozone.box <- ggplot(EPAair, aes(x = as.factor(Year), y = Ozone)) +
+  geom_boxplot() +
+  stat_summary(geom = "text", fun.y = max, vjust = -1, size = 4, 
+               label = c("b", "a")) +
+  labs(x = "", y = "Ozone AQI value")
 
+  #ggplot(EPAair)+
+  #geom_boxplot(aes(x=as.factor(EPAair$Year), y= EPAair$Ozone))
+print(Ozone.box)
+
+Ozone.voilin <- ggplot(EPAair, aes(x = as.factor(Year), y = Ozone))+
+  geom_violin()+
+  geom_hline(yintercept = quantile(na.omit(EPAair$Ozone),0.5), color = "#238b45", lty = 2, size = 0.9)+
+  scale_y_continuous(expand = c(0, 0)) 
+print(Ozone.voilin)
 ```
 
 Now, write a summary of your findings, incorporating statistical output, reference to the figure(s), and a contextual interpretation.
 
-> 
-
-
+> Mean AQI values for ozone were 0.85 units higher in 2019 than in 2018, representing a significant increase (Figure 1; Wilcoxon test, W = 5399454, p < 0.0001). 
+## 0.85 from previous test (difference between 2019 and 2018)
+## W from wilcoxon test
 

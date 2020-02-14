@@ -43,6 +43,7 @@ Litter.Totals <- Litter %>%
 # Test for normality. 
 # Note: the important assumption for GLMs is normality of residuals, 
 # not necessarily normality of raw data. See below when we plot the model.
+## if p-value is < 0.5 -- not fit to a normal distribution
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_040"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_041"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_046"])
@@ -60,13 +61,15 @@ qqnorm(Litter.Totals$dryMass); qqline(Litter.Totals$dryMass)
 
 # Test for equal variance
 # ANOVA is robust against departures from equal variance.
+##p-value is low -- these values are not close to each other
 bartlett.test(Litter.Totals$dryMass ~ Litter.Totals$plotID)
 
 # Format ANOVA as aov
 Litter.Totals.anova <- aov(data = Litter.Totals, dryMass ~ plotID)
 summary(Litter.Totals.anova)
 
-# Format ANOVA as lm
+# Format ANOVA as lm - lm is interceptual
+## the actual value for iea ID is intercept value +/- estimate std.
 Litter.Totals.anova2 <- lm(data = Litter.Totals, dryMass ~ plotID)
 summary(Litter.Totals.anova2)
 
@@ -74,28 +77,30 @@ summary(Litter.Totals.anova2)
 # ANOVA is robust against departures from normality.
 plot(Litter.Totals.anova2)
 
-# Post-hoc test
+# Post-hoc test - only works for aov, not for lm
+## looks for p value less than 0.5
 TukeyHSD(Litter.Totals.anova)
 
 # Extract groupings for pairwise relationships
+## if share the same letter -- not significantly different from other
 Litter.Totals.groups <- HSD.test(Litter.Totals.anova, "plotID", group = TRUE)
 Litter.Totals.groups
 
 # Graph the results
 Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
   geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ##change a new theme
   stat_summary(geom = "text", fun.y = max, vjust = -1, size = 3.5,
                label = c("abc", "ab", "abcd", "bcd", "bcd", "a", 
-                         "d", "abcd", "cd", "d", "abcd", "abcd")) +
+                         "d", "abcd", "cd", "d", "abcd", "abcd")) + ## geom =  what type of geommetry you want to use. fun.y = where you want to put this text
   labs(x = "Plot ID", y = "Dry Mass (g)") +
   ylim(0, 85)
 print(Litter.Totals.plot)
 ```
 
 What information does the output give us? How might we report this information in a report?
-
-> 
+> Total litter biomass differed among sites at the Niwot Ridge LTER (Figure 1; ANOVA, F11,198 = 4.813, p< 0.0001).
+## the greater F value from 0, the more signifcantly different from the group
 
 
 ### Non-parametric equivalent of ANOVA: Kruskal-Wallis Test
