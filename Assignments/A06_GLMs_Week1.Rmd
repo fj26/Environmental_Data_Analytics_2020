@@ -101,7 +101,7 @@ print(tn.plot)
 tp.plot <- ggplot(PPnutrient_surface, aes(x=as.factor(month), y = tp_ug, color = lakename))+
   geom_boxplot()+
   stat_summary(geom = "text", fun.y = max, vjust = -1, size = 4, 
-               label = c("cd", "bcd", "d", "ab","d","a", "d", "abc", "cd","abcd"),
+               label = c("bcd","cd","ab","d","a","d","abc","d", "abcd","cd"),
               position = position_dodge(width = 0.75))+
   labs(x = "Month", y = expression(paste("TN (", mu, "g/L)")), color = 'Lake Name') +
   scale_color_viridis_d(option = "plasma", begin = 0.3, end = 0.8)
