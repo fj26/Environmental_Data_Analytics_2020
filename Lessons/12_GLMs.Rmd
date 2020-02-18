@@ -17,7 +17,7 @@ editor_options:
 ```{r, message = FALSE}
 getwd()
 library(tidyverse)
-options(scipen = 4)
+options(scipen = 4) ## output normal number, not scientific value 
 
 PeterPaul.chem.nutrients <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
 
@@ -29,7 +29,7 @@ theme_set(mytheme)
 ```
 
 ## Linear Regression
-The linear regression, like the t-test and ANOVA, is a special case of the **generalized linear model** (GLM). A linear regression is comprised of a continuous response variable, plus a combination of 1+ continuous response variables (plus the error term). The deterministic portion of the equation describes the response variable as lying on a straight line, with an intercept and a slope term. The equation is thus a typical algebraic expression: 
+The linear regression, like the t-test and ANOVA, is a special case of the **generalized linear model** (GLM). A linear regression is comprised of a continuous response variable, plus a combination of 1+ continuous response variables (plus the error term). The deterministic portion of the equation describes the response variable as lying on a straight line, with an intercept and a slope term. The equation is thus a typical algebraic expression:  ## use DOLLAR sign to insert format and greet letter
 $$ y = \alpha + \beta*x + \epsilon $$
 
 The goal for the linear regression is to find a **line of best fit**, which is the line drawn through the bivariate space that minimizes the total distance of points from the line. This is also called a "least squares" regression. The remainder of the variance not explained by the model is called the **residual error.** 
@@ -41,7 +41,8 @@ The linear regression will test the null hypotheses that
 
 Whether or not we care about the result of each of these tested hypotheses will depend on our research question. Sometimes, the test for the intercept will be of interest, and sometimes it will not.
 
-Important components of the linear regression are the correlation and the R-squared value. The **correlation** is a number between -1 and 1, describing the relationship between the variables. Correlations close to -1 represent strong negative correlations, correlations close to zero represent weak correlations, and correlations close to 1 represent strong positive correlations. The **R-squared value** is the correlation squared, becoming a number between 0 and 1. The R-squared value describes the percent of variance accounted for by the explanatory variables. 
+Important components of the linear regression are the correlation and the R-squared value. The **correlation** is a number between -1 and 1, describing the relationship between the variables. Correlations close to -1 represent strong negative correlations, correlations close to zero represent weak correlations, and correlations close to 1 represent strong positive correlations. --if close to 0, the correlation is not strong. negative and positive sign means the direction
+The **R-squared value** is the correlation squared, becoming a number between 0 and 1. The R-squared value describes the percent of variance accounted for by the explanatory variables.  -- only represent the correlationship 
 
 ## Simple Linear Regression
 For the NTL-LTER dataset, can we predict irradiance (light level) from depth?
@@ -51,12 +52,17 @@ irradiance.regression <- lm(PeterPaul.chem.nutrients$irradianceWater ~ PeterPaul
 irradiance.regression <- lm(data = PeterPaul.chem.nutrients, irradianceWater ~ depth)
 summary(irradiance.regression)
 
-# Correlation
+##adjusted r-squred means what percentage of the variance is explained in this linear regression relationship
+
+# Correlation  -- the squre root of correlation is reported in lm (R-squared)
 cor.test(PeterPaul.chem.nutrients$irradianceWater, PeterPaul.chem.nutrients$depth)
 ```
 Question: How would you report the results of this test (overall findings and report of statistical output)?
 
->  
+>  At greater depth, irradiance decreases.  (linear regression,R2=0.31, dF = 15449, p < 0.0001 )
+Depth accounts for 30% of variance in lake irradiance.(linear regression,R2=0.31, dF = 15449, p < 0.0001 )
+Irradiance decreases signficiantly with decreasing depth (linear regression,R2=0.31, dF = 15449, p < 0.0001 ).
+For each 1 m increase in depth, irrace decreases by 95 unit (linear regression,R2=0.31, dF = 15449, p < 0.0001).
 
 So, we see there is a significant negative correlation between irradiance and depth (lower light levels at greater depths), and that this model explains about 31 % of the total variance in irradiance. Let's visualize this relationship and the model itself. 
 
@@ -82,7 +88,7 @@ The option best suited for communicating findings is to plot the explanatory and
 # Plot the regression
 irradiancebydepth <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
-  #ylim(0, 2000) +
+  ylim(0, 2000) +
   geom_point() 
 print(irradiancebydepth) 
 ```
@@ -102,21 +108,23 @@ par(mfrow = c(1,1))
 # Add a line and standard error for the linear regression
 irradiancebydepth2 <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
-  geom_smooth(method = "lm") +
-  scale_y_log10() +
+  geom_smooth(method = "lm") + ## can change the method to an equation (manually input the equation); already include 95% confidence interval
+  scale_y_log10() + ## change the entire axis instead of variable itself is easier to read
   geom_point() 
 print(irradiancebydepth2) 
 
 # SE can also be removed
 irradiancebydepth2 <- 
     ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
-    geom_point() +
+    geom_point() +## google geom_point to change the type of points, can change color here as well by typing color = xxx, alpha = xxx
     scale_y_log10() +
-    geom_smooth(method = 'lm', se = FALSE, color = "black")
+    labs(x='Depth (m)', y ='Irradiance ()')
+    geom_smooth(method = 'lm', se = FALSE, color = "black") ## remove the confidence interval (just the interval of the line, not for the data)
 print(irradiancebydepth2)
 
 # Make the graph attractive
 
+## stats results show in log format, when interpret it, say "the exponential   irradiance is in the negative linear relationship with depth" -- or goolge how to interpret log -transformed result
 ```
 
 ## Non-parametric equivalent: Spearman's Rho
@@ -151,12 +159,12 @@ par(mfrow = c(1,1))
 We can also make exploratory plots of several continuous data points to determine possible relationships, as well as covariance among explanatory variables. 
 
 ```{r, fig.height = 3, fig.width = 4}
-#install.packages("corrplot")
+install.packages("corrplot")
 library(corrplot)
 PeterPaulnutrients <- 
   PeterPaul.chem.nutrients %>%
   select(tn_ug:po4) %>%
-  na.omit()
+  na.omit() ## must filter out NAs to plot in the correlation plot
 PeterPaulCorr <- cor(PeterPaulnutrients)
 corrplot(PeterPaulCorr, method = "ellipse")
 corrplot.mixed(PeterPaulCorr, upper = "ellipse")
@@ -175,8 +183,15 @@ Paul.naomit <- PeterPaul.chem.nutrients %>%
 
 TPAIC <- lm(data = Paul.naomit, tp_ug ~ depth + dissolvedOxygen + 
               temperature_C + tn_ug + po4)
-step(TPAIC)
+step(TPAIC) ## AIC output as an ascending trend - then run without the lowest AIC variable again 
+
+## none is the lowest AIC -- doing none will improve AIC -- stop here
+
+## run the lm without po4
 TPmodel <- lm(data = Paul.naomit, tp_ug ~ dissolvedOxygen + temperature_C + tn_ug)
-summary(TPmodel)
+summary(TPmodel) 
+
+##smaller AIC the better
+##AIC not comparable across different models
 
 ```
