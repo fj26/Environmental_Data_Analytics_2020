@@ -21,7 +21,7 @@ library(lubridate)
 library(viridis)
 #install.packages("nlme")
 library(nlme)
-#install.packages("piecewiseSEM")
+install.packages("piecewiseSEM")
 library(piecewiseSEM)
 
 PeterPaul.chem.nutrients <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
@@ -46,14 +46,22 @@ Let's say we wanted to predict total nitrogen concentrations by depth and by lak
 TNancova.main <- lm(data = PeterPaul.chem.nutrients, tn_ug ~ lakename + depth)
 summary(TNancova.main)
 
+## Intercept -- Paul lake nutrient level at surface level (depth =0) --> Peter lake  = intercept+Peterlake; Depth means each meter increase in depth, nutrients in Paul lake will increase by xxx
+## no difference in formula from Anova
+
 # interaction effects
 TNancova.interaction <- lm(data = PeterPaul.chem.nutrients, tn_ug ~ lakename * depth)
 summary(TNancova.interaction)
 
+##Peter:depth -- for each meter increase in Peter lake, the nutrient level will increase xxx (if negative, means decrease)
+
 TNplot <- ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = tn_ug, color = lakename)) + 
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE) +
-  xlim(0, 10)
+  xlim(0, 10)+
+  labs(x='Depth (m)', y= expression(paste("TN (", mu, "g/L)")), color = '')+
+  #scale_color_brewer(palette = 'Dark2')
+  scale_color_manual(values = c('Dark Blue','Light Blue'))
 print(TNplot)
 
 # Make the graph attractive
@@ -115,9 +123,10 @@ anova(TempTest.mixed, TempTest.fixed)
 # The p-value tells us whether those models have a significantly different fit
 
 NTL.tempmodel <-
-ggplot(NTL.summertemp, aes(x = year4, y = temperature_C, color = lakename)) +
-  geom_point() +
-  scale_color_viridis_d() +
+ggplot(NTL.summertemp, aes(x = year4, y = temperature_C)) +
+  geom_point(aes(color = lakename)) +
+  scale_color_viridis_d() + 
+  geom_smooth(method = 'lm', se = FALSE)+##BEST fit line for the fixed model -- this is linear model
   geom_abline(intercept = -97.72, slope = 0.06) +
   # make it look better
   labs(x = "", y = expression("Temperature " ( degree~C)), color = "") +
