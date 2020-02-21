@@ -1,6 +1,6 @@
 ---
 title: "Assignment 7: GLMs week 2 (Linear Regression and beyond)"
-author: "Student Name"
+author: Vicky Jia
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -27,9 +27,18 @@ The completed exercise is due on Tuesday, February 25 at 1:00 pm.
 
 ```{r}
 #1
-
+getwd()
+library(tidyverse)
+library(nlme)
+library(piecewiseSEM)
+NTLraw <- read.csv('./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv')
+Litter <- read.csv('./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv')
 
 #2
+mytheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
 
 ```
 
@@ -47,31 +56,49 @@ Research question: What is the best set of predictors for lake temperatures in J
 
 ```{r}
 #3
-
+NTLsel <- 
+  NTLraw %>%
+  select(lakename:daynum, depth, temperature_C) %>%
+  filter(daynum > 181 & daynum < 213) %>%
+  na.exclude()
 
 #4
+TEMPAIC <- lm(data=NTLsel, temperature_C ~ year4 + daynum + depth)
+step(TEMPAIC)
 
+TEMPmodel <- lm(data=NTLsel, temperature_C ~ year4 + daynum + depth)
+summary(TEMPmodel)
 ```
 
 5. What is the final set of explanatory variables that predict temperature from your multiple regression? How much of the observed variance does this model explain?
 
-> Answer: 
+> Answer: The final set of explanatory variables are years, day numbers and depth (temperature_C ~ year4 + daynum + depth), which indicates all selected explanatory variables are important to predict temperature in this multiple regression. According to the adjusted R-squared, there is about 74.17% observed variance explained in this model (linear regression, R2 = 0.7417, dF = 9718, p < 0.0001 ).
 
 6. Run an interaction effects ANCOVA to predict temperature based on depth and lakename from the same wrangled dataset.
 
 ```{r}
 #6
-
+NTLinter <- lm(data=NTLsel, temperature_C ~ depth * lakename)
+summary(NTLinter)
 ```
 
 7. Is there a significant interaction between depth and lakename? How much variance in the temperature observations does this explain?
 
-> Answer: 
+> Answer: There are significant interactions between depth and some lakenames - not all lakenames have a significant interaction with depth, for example, Paul Lake. According to the adjusted R-squared, there is about 78.57% observed variance explained in this model (linear regression, adjusted R2 = 0.7857, dF = 9704, p < 0.0001 ).
+
 
 8. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
 
 ```{r}
 #8
+library(viridis)
+NTLplot <- ggplot(NTLsel, aes(x=depth, y=temperature_C, color = lakename))+
+  geom_point(alpha=0.5)+
+  scale_color_viridis(discrete = TRUE, option = "magma", end = 1)+
+  geom_smooth(method = 'lm', se = FALSE)+
+  ylim(0,35)+
+  labs(x = "Depth (m)", y = expression("Temperature " ( degree~C)), color = "")
+plot(NTLplot)  
 
 ```
 
@@ -81,21 +108,25 @@ a. Build and run a mixed effects model.
 b. Check the difference between the marginal and conditional R2 of the model. 
 
 ```{r}
-
-
+Litter.mix <- lme(data = Litter, dryMass ~ nlcdClass * functionalGroup,
+                  random = ~1|plotID)
+summary(Litter.mix)
+rsquared(Litter.mix)
 ```
 
 b. continued... How much more variance is explained by adding the random effect to the model? 
 
-> Answer: 2 %
+> Answer: 24.66%
 
 c. Run the same model without the random effect.
 d. Run an anova on the two tests. 
 ```{r}
- 
+Litter.fix <- gls(data = Litter, dryMass ~ nlcdClass * functionalGroup)
+summary(Litter.fix)
 
+anova(Litter.mix, Litter.fix)
 ```
 
 d. continued... Is the mixed effects model a better model than the fixed effects model? How do you know?
 
-> Answer: 
+> Answer: Yes, the mixed effects model better, because AIC value for the mixed effects model is higher.
