@@ -27,7 +27,7 @@ The completed exercise is due on Tuesday, February 25 at 1:00 pm.
 
 ```{r}
 #1
-getwd()
+getwd() 
 library(tidyverse)
 library(nlme)
 library(piecewiseSEM)
@@ -84,7 +84,7 @@ summary(NTLinter)
 
 7. Is there a significant interaction between depth and lakename? How much variance in the temperature observations does this explain?
 
-> Answer: There are significant interactions between depth and some lakenames - not all lakenames have a significant interaction with depth, for example, Paul Lake. According to the adjusted R-squared, there is about 78.57% observed variance explained in this model (linear regression, adjusted R2 = 0.7857, dF = 9704, p < 0.0001 ).
+> Answer: There are significant interactions between depth and some lakenames, but not all lakenames have significant interactions with depth - for example, Paul Lake, whose p-value of interaction with depth is greater than 0.05. According to the adjusted R-squared, there is about 78.57% observed variance explained in this model (linear regression, adjusted R2 = 0.7857, dF = 9704, p < 0.0001 ).
 
 
 8. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
@@ -129,4 +129,4 @@ anova(Litter.mix, Litter.fix)
 
 d. continued... Is the mixed effects model a better model than the fixed effects model? How do you know?
 
-> Answer: Yes, the mixed effects model better, because AIC value for the mixed effects model is higher.
+> Answer: Yes, the mixed effects model is better, because AIC value for the mixed effects model is lower. There is a significant difference between two models as p-value < 0.0001.
