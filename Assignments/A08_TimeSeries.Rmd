@@ -158,4 +158,4 @@ print(GaringerOzone.monthly.plot)
 14. To accompany your graph, summarize your results in context of the research question. Include output from the statistical test in parentheses at the end of your sentence. Feel free to use multiple sentences in your interpretation.
 
 > Answer: 
-There is a significant seasonal decreasing (negative) trend of ozone concentrations over the 2010s at this station. Also, the and also there is a signficant difference from the overall trend. The observations in recent years tend to be smaller than those in earlier years. (Seasonal Mann-Kendall trend test z=-1.963, p-value = 0.04965).
+There is a significant seasonal decreasing (negative) trend of ozone concentrations over the 2010s at this station. Also, there is a signficant difference from the overall trend. The observations of the trend in recent years tend to be smaller than those in earlier years. (Seasonal Mann-Kendall trend test z=-1.963, p-value = 0.04965).
