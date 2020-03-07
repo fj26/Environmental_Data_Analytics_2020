@@ -25,6 +25,151 @@ Here are your three options:
 
 1. Reproduce figure 1b from the spatial lesson, found in section 3.2.2. You may choose a state other than North Carolina, but your map should still contain the spatial features contained in figure 1b in the "img" folder. 
 
+```{r}
+library("readr")
+library("dplyr")
+library("tidyr")
+library("ggplot2")
+library("purrr")
+library("sf")
+library("ggmap")
+library("here")
+
+here()
+basins_nf_seplains_raw <- st_read(here("data", "spatial_data", "bas_nonref_SEPlains.shp"))
+gages_raw <- st_read(here("data", "spatial_data", "gagesII_9322_sept30_2011.shp"))
+state_bounds_raw <- st_read(here("data", "spatial_data", "state_bounds.shp"))
+
+my_tabular_data_raw <- read.csv(here("data", "tabular_data", "conterm_climate.txt"))
+
+st_crs(basins_nf_seplains_raw)
+st_crs(gages_raw)
+st_crs(state_bounds_raw)
+
+my_proj4 <- "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"
+my_epsg <- 4269
+
+basins_nf_seplains <- basins_nf_seplains_raw
+basins_nf_seplains_trans <- sf::st_transform(basins_nf_seplains, crs = my_proj4) %>%
+  st_set_crs(my_epsg)
+
+gages <- gages_raw
+gages_trans <- sf::st_transform(gages, crs = my_proj4) %>%
+  st_set_crs(my_epsg)
+
+state_bounds <- state_bounds_raw
+state_bounds_trans <- sf::st_transform(state_bounds, crs = my_proj4) %>%
+  st_set_crs(my_epsg)
+
+st_crs(basins_nf_seplains_trans)
+st_crs(gages_trans)
+st_crs(state_bounds_trans)
+
+fl_state_bounds_geom <- state_bounds_trans %>%
+  filter(NAME == "Florida") %>%
+  st_geometry()
+head(fl_state_bounds_geom)
+
+x1 <- st_overlaps(basins_nf_seplains_trans, fl_state_bounds_geom)
+head(x1)
+class(x1)
+x2 <- map_lgl(x1, function(x) {
+  if (length(x) == 1) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+})
+head(x2)
+
+fl_basin_logic <- basins_nf_seplains_trans[x2,]
+class(fl_basin_logic)
+head(fl_basin_logic)
+
+#test <- basins_nf_seplains_trans %>%
+#  filter(st_overlaps(x=., y= fl_state_bounds_geom, sparse = FALSE))
+#class(test)
+
+fl_gages <- gages_trans %>%
+  st_intersection(fl_basin_logic)
+head(fl_gages) 
+class(fl_gages)
+
+##below is code with basin only in FL, not complete basins
+basin_test <- basins_nf_seplains_trans %>%
+  st_intersection(fl_state_bounds_geom)
+class(basin_test)
+
+gage_test <- gages_trans %>%
+  st_intersection(fl_state_bounds_geom)
+class(gage_test)
+
+pdf(here("outputs", "test.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = fl_state_bounds_geom, fill = NA) +
+  geom_sf(data = basin_test, alpha = 0.25) +
+  geom_sf(data = gage_test, lwd = 1) +
+  theme_bw()
+dev.off()
+##end of test files
+
+##test withouth basemap
+pdf(here("outputs", "test3.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = fl_state_bounds_geom, fill = NA) +
+  geom_sf(data = fl_basin_logic, alpha = 0.25) +
+  geom_sf(data = fl_gages, lwd = 1) +
+  theme_bw()
+dev.off()
+##end of testing basemap
+
+wgs_proj <- "+proj=longlat +datum=WGS84 +no_defs"
+wgs_epsg <- 4326
+
+fl_basin_wgs <- fl_basin_logic %>%
+  st_transform(4326)
+
+fl_gages_wgs <- fl_gages%>%
+  st_transform(4326) 
+
+fl_state_wgs <- fl_state_bounds_geom%>%
+  st_transform(4326) 
+
+st_crs(fl_basin_wgs)
+st_crs(fl_gages_wgs)
+st_crs(fl_state_wgs)
+
+fl_state_geom <- state_bounds %>%
+  filter(NAME == "Florida") %>%
+  st_geometry()
+
+fl_bbox <- fl_state_geom %>%
+  st_buffer(dist = 550000) %>% 
+  st_transform(4326) %>%
+  st_bbox()
+fl_bbox
+
+fl_bbox_fix <- c(left = fl_bbox[[1]], bottom = fl_bbox[[2]], right = fl_bbox[[3]], top = fl_bbox[[4]])
+fl_bbox_fix
+
+fl_basemap <- get_map(fl_bbox_fix, maptype = 'terrain-background', source = 'stamen', zoom = 8)
+class(fl_basemap)
+st_crs(fl_basemap)
+
+
+pdf(here("outputs", "test2.pdf"), width = 11, height = 8.5)
+ggmap(fl_basemap) +
+  geom_sf(data = fl_state_wgs, fill = NA, lwd = 1, inherit.aes = FALSE)+
+  geom_sf(data = fl_basin_wgs, alpha = 0.25, inherit.aes = FALSE)+
+  geom_sf(data = fl_gages_wgs, lwd = 1, inherit.aes = FALSE) +
+  labs(x = "Longitude", y = "Latitude")+
+  theme_bw()
+dev.off()
+
+```
+
+
+
 2. Create a new map that mixes spatial and tabular data, as in section 3.3 of the spatial lesson. You may use the maps created in the lesson as an example, but your map should contain data other than precipitation days per year. This map should include: 
 
 * State boundary layer

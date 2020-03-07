@@ -382,6 +382,7 @@ Last, check the CRSs of each.
 # define proj4 string and EPSG code
 # add your code here
 my_proj4 <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+
 my_epsg <- 5070
 
 # setting projections
@@ -721,7 +722,6 @@ Can you reproduce Figure 1b?
 
 # map function on data and select only true values
 # add your code here
-
 
 # look at result
 # add your code here
