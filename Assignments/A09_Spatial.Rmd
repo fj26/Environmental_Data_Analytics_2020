@@ -160,7 +160,7 @@ st_crs(fl_basemap)
 pdf(here("outputs", "test2.pdf"), width = 11, height = 8.5)
 ggmap(fl_basemap) +
   geom_sf(data = fl_state_wgs, fill = NA, lwd = 1, inherit.aes = FALSE)+
-  geom_sf(data = fl_basin_wgs, alpha = 0.25, inherit.aes = FALSE)+
+  geom_sf(data = fl_basin_wgs, alpha = 0.1, color="black", inherit.aes = FALSE)+
   geom_sf(data = fl_gages_wgs, lwd = 1, inherit.aes = FALSE) +
   labs(x = "Longitude", y = "Latitude")+
   theme_bw()
