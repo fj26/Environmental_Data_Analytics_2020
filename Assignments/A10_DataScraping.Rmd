@@ -144,7 +144,7 @@ str(Lakes)
 10. Join the two data frames with a `full_join`.
 
 ```{r}
-ImpairedWater <- full_join(Rivers, Lakes)
+ImpairedWater <- full_join(Rivers, Lakes, by='State')
 ```
 
 11. Create one graph that compares the data for lakes and/or rivers. This option is flexible; choose a relationship (or relationships) that seem interesting to you, and think about the implications of your findings. This graph should be edited so it follows best data visualization practices. 
