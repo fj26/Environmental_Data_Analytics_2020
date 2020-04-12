@@ -19,9 +19,7 @@ ui <- fluidPage(
       selectInput(inputId = "y", 
                   label = "Nutrient",
                   choices = c("tn_ug", "tp_ug", "nh34", "no23", "po4"), 
-                  selected = "tp_ug"),
-  
-      ),
+                  selected = "tp_ug")),
 
     # Output
     mainPanel(
